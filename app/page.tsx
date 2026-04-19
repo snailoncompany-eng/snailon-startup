@@ -1,7 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import LandingClient from "./LandingClient";
 
-export const revalidate = 0; // always fresh on server render
+export const revalidate = 0;
 
 type SpotsRow = {
   total_spots: number;
@@ -19,8 +19,7 @@ async function fetchInitialSpots(): Promise<SpotsRow> {
     if (error || !data) throw error ?? new Error("no data");
     return data as SpotsRow;
   } catch (e) {
-    // Graceful fallback — the client will still fetch fresh data on mount
-    console.error("[page] failed to fetch initial spots:", e);
+    console.error("[page] initial spots fetch failed:", e);
     return { total_spots: 100, spots_taken: 0, spots_remaining: 100 };
   }
 }

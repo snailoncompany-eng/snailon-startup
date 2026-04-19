@@ -2,17 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Snailon — Founding Member",
+  title: "Snailon — COD orders, confirmed.",
   description:
-    "AI-powered COD confirmation for Moroccan sellers. Join as a Founding Member and lock in 1% commission forever.",
+    "AI-powered COD order confirmation for Moroccan merchants. Connect your WhatsApp, cut refusals, lock in 1% commission forever as a founding member.",
   metadataBase: new URL("https://snailon.com"),
   openGraph: {
-    title: "Snailon — Founding Member",
+    title: "Snailon — COD orders, confirmed.",
     description:
-      "AI-powered COD confirmation for Moroccan sellers. Join as a Founding Member and lock in 1% commission forever.",
+      "AI-powered COD order confirmation for Moroccan merchants. Connect your WhatsApp, cut refusals, lock in 1% commission forever as a founding member.",
     url: "https://snailon.com",
     siteName: "Snailon",
     type: "website",
+    locale: "en_US",
   },
 };
 
@@ -30,8 +31,12 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin=""
         />
+        {/* Fraunces: variable opsz/SOFT/WONK for expressive serif */}
+        {/* IBM Plex Sans: body, distinctive sans  */}
+        {/* IBM Plex Mono: labels, eyebrows        */}
+        {/* Cairo: Arabic fallback                 */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cairo:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..700,0..100,0..1;1,9..144,400..700,0..100,0..1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
