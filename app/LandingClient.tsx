@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { T, type Lang } from "./i18n";
-
-const WHOP_CHECKOUT_URL = "https://whop.com/checkout/plan_Rqh1uX4IZCqly/";
 
 type Spots = {
   total_spots: number;
@@ -12,10 +11,28 @@ type Spots = {
   spots_remaining: number;
 };
 
-/**
- * Tiny Moroccan-inspired 8-point star. Used as an ornament.
- * Intentionally understated — a single geometric mark, not decorative maximalism.
- */
+/** Snail / spiral mark for the brand lockup. Single-line, minimal. */
+function SnailMark({ size = 22 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="14" cy="12" r="6.5" />
+        <circle cx="14" cy="12" r="3.2" />
+        <circle cx="14" cy="12" r="1" fill="currentColor" stroke="none" />
+        <path d="M7.5 16 Q4 15.5 2.8 13.2" />
+        <path d="M5.5 10.8 L4 7.2 M7.3 10.2 L7.3 6.8" />
+      </g>
+    </svg>
+  );
+}
+
+/** Small Moroccan-inspired 8-point star used as a section divider ornament. */
 function ZelligeStar({ size = 22 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
@@ -27,25 +44,9 @@ function ZelligeStar({ size = 22 }: { size?: number }) {
   );
 }
 
-/** Snail / spiral mark for the brand lockup. Single-line, minimal. */
-function SnailMark({ size = 22 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="14" cy="12" r="6.5" />
-        <circle cx="14" cy="12" r="3.2" />
-        <circle cx="14" cy="12" r="1" fill="currentColor" stroke="none" />
-        <path d="M7.5 16 Q4 15.5 2.8 13.2" />
-        <path d="M5.5 10.8 L4 7.2 M7.3 10.2 L7.3 6.8" />
-      </g>
-    </svg>
-  );
-}
-
 export default function LandingClient({ initial }: { initial: Spots }) {
   const [lang, setLang] = useState<Lang>("en");
   const [spots, setSpots] = useState<Spots>(initial);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const t = T[lang];
@@ -55,7 +56,7 @@ export default function LandingClient({ initial }: { initial: Spots }) {
       ? Math.min(100, Math.round((spots.spots_taken / spots.total_spots) * 100))
       : 0;
 
-  // Html dir + body rtl toggle
+  // HTML dir + body rtl toggle
   useEffect(() => {
     document.documentElement.dir = t.dir;
     document.documentElement.lang = t.lang;
@@ -92,12 +93,10 @@ export default function LandingClient({ initial }: { initial: Spots }) {
     };
   }, [supabase, refreshSpots]);
 
-  // Animated number counter: tick down from a higher value to the real remaining on first mount.
-  // This is the "one orchestrated moment" — the hero's signature animation.
+  // Animated counter: tick down from a higher value to the real remaining on first mount.
   const [displayNum, setDisplayNum] = useState(remaining);
   const didAnimateRef = useRef(false);
   useEffect(() => {
-    // Only animate on first mount with the true initial value
     if (didAnimateRef.current) {
       setDisplayNum(remaining);
       return;
@@ -110,7 +109,6 @@ export default function LandingClient({ initial }: { initial: Spots }) {
     let rafId = 0;
     const tick = (now: number) => {
       const p = Math.min(1, (now - startTime) / duration);
-      // easeOutCubic
       const eased = 1 - Math.pow(1 - p, 3);
       const v = Math.round(start + (end - start) * eased);
       setDisplayNum(v);
@@ -142,7 +140,6 @@ export default function LandingClient({ initial }: { initial: Spots }) {
       { threshold: 0.14 },
     );
     els.forEach((el) => obs.observe(el));
-    // Immediately reveal anything above the fold on mount (IntersectionObserver occasionally misses fast first paints)
     requestAnimationFrame(() => {
       document.querySelectorAll(".reveal").forEach((el) => {
         const rect = el.getBoundingClientRect();
@@ -154,19 +151,17 @@ export default function LandingClient({ initial }: { initial: Spots }) {
     return () => obs.disconnect();
   }, [lang]);
 
-  const toggleFaq = (i: number) => setOpenFaq(openFaq === i ? null : i);
-
   return (
     <>
       {/* ──────── NAV ──────── */}
       <nav className="nav">
         <div className="nav-inner">
-          <a href="/" className="nav-brand" aria-label="Snailon home">
+          <Link href="/" className="nav-brand" aria-label="Snailon home">
             <span className="nav-mark">
               <SnailMark />
             </span>
             Snailon
-          </a>
+          </Link>
           <div className="nav-right">
             <a href="#how" className="nav-link nav-link-how">
               {t.nav_how}
@@ -184,17 +179,12 @@ export default function LandingClient({ initial }: { initial: Spots }) {
                 </button>
               ))}
             </div>
-            <a href="/login" className="btn btn-ghost">
+            <Link href="/login" className="btn btn-ghost">
               {t.nav_signin}
-            </a>
-            <a
-              href={WHOP_CHECKOUT_URL}
-              className="btn btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            </Link>
+            <Link href="/login" className="btn btn-primary" prefetch>
               {t.nav_cta} <span className="btn-arrow">→</span>
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -202,15 +192,7 @@ export default function LandingClient({ initial }: { initial: Spots }) {
       {/* ──────── HERO ──────── */}
       <section className="hero">
         <div className="hero-grid">
-          {/* Left: headline, lede, CTAs */}
           <div className="hero-left">
-            <div className="reveal is-visible hero-eyebrow-row">
-              <span className="eyebrow">
-                {t.hero_eyebrow_place}
-              </span>
-              <span className="sep" />
-              <span className="meta">{t.hero_eyebrow_year}</span>
-            </div>
             <h1
               className="hero-h1 reveal is-visible"
               data-delay="1"
@@ -220,29 +202,20 @@ export default function LandingClient({ initial }: { initial: Spots }) {
               {t.hero_lede}
             </p>
             <div className="hero-cta-row reveal is-visible" data-delay="3">
-              <a
-                href={WHOP_CHECKOUT_URL}
-                className="btn btn-primary btn-lg"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link href="/login" className="btn btn-primary btn-lg" prefetch>
                 {t.hero_cta_primary} <span className="btn-arrow">→</span>
-              </a>
+              </Link>
               <a href="#how" className="btn btn-ghost btn-lg">
                 {t.hero_cta_secondary}
               </a>
             </div>
-            <div className="hero-meta reveal is-visible" data-delay="4">
-              {t.hero_meta.map((m, i) => (
-                <span key={i}>
-                  <span className="dot" /> {m}
-                </span>
-              ))}
-            </div>
           </div>
 
-          {/* Right: the counter */}
-          <aside className="counter reveal is-visible" data-delay="2" aria-live="polite">
+          <aside
+            className="counter reveal is-visible"
+            data-delay="2"
+            aria-live="polite"
+          >
             <span className="counter-stamp">{t.counter_stamp}</span>
             <div className="counter-label">{t.counter_label}</div>
             <span className="counter-num">{displayNum}</span>
@@ -322,62 +295,30 @@ export default function LandingClient({ initial }: { initial: Spots }) {
         </div>
       </div>
 
-      {/* ──────── FAQ ──────── */}
-      <section className="section" id="faq">
-        <div className="section-head reveal">
-          <div>
-            <span className="eyebrow">{t.faq_eyebrow}</span>
-            <h2 className="section-title">{t.faq_title}</h2>
+      {/* ──────── FINAL STATEMENT (new: brandable + international) ──────── */}
+      <section className="final-statement">
+        <div className="final-inner reveal">
+          <div className="final-mark" aria-hidden="true">
+            <SnailMark size={28} />
           </div>
-          <p className="section-note">{t.faq_note}</p>
-        </div>
-        <div className="faq-list reveal">
-          {t.faq_items.map((item, i) => (
-            <div className="faq-item" data-open={openFaq === i} key={i}>
-              <button
-                type="button"
-                className="faq-q"
-                onClick={() => toggleFaq(i)}
-                aria-expanded={openFaq === i}
-              >
-                <span>{item.q}</span>
-                <span className="faq-icon" aria-hidden="true" />
-              </button>
-              <div className="faq-a">
-                <div className="faq-a-inner">{item.a}</div>
-              </div>
-            </div>
-          ))}
+          <div className="final-brand">Snailon</div>
+          <div className="final-tagline">{t.final_tagline}</div>
+          <h2
+            className="final-h2"
+            dangerouslySetInnerHTML={{ __html: t.final_h2 }}
+          />
+          <Link href="/login" className="btn btn-cream btn-lg" prefetch>
+            {t.final_btn} <span className="btn-arrow">→</span>
+          </Link>
+          <div className="final-contact">
+            <a href={`mailto:${t.final_contact_support}`}>
+              {t.final_contact_support}
+            </a>
+            <span>{t.final_contact_location}</span>
+            <span>{t.final_contact_year}</span>
+          </div>
         </div>
       </section>
-
-      {/* ──────── FINAL CTA ──────── */}
-      <section className="final-cta reveal" id="join">
-        <h2 className="final-h2">{t.final_title(remaining)}</h2>
-        <p className="final-sub">{t.final_sub}</p>
-        <a
-          href={WHOP_CHECKOUT_URL}
-          className="btn btn-terracotta btn-lg"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {t.final_btn} <span className="btn-arrow">→</span>
-        </a>
-      </section>
-
-      {/* ──────── FOOTER ──────── */}
-      <footer>
-        <div>
-          <div className="footer-brand">Snailon</div>
-          <p className="footer-text">{t.footer_text}</p>
-        </div>
-        <div className="footer-meta">
-          <span>{t.footer_year}</span>
-          <span>
-            <ZelligeStar size={16} />
-          </span>
-        </div>
-      </footer>
     </>
   );
 }
